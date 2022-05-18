@@ -1,0 +1,9 @@
+{
+  "build": {
+    "type": "maven",
+    "goal": "-Pprod package -DskipTests"
+  },
+  "deploy": {
+    "goal": "target/app.jar"
+  }
+}
