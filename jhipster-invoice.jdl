@@ -1,0 +1,26 @@
+entity InvoiceNumber {
+    creationDate ZonedDateTime,
+	invoiceNumber Integer,
+	eventId String
+}
+
+entity RecyclableInvoiceNumber {
+    creationDate ZonedDateTime,
+	invoiceNumber Integer,
+	eventId String
+}
+
+entity InvoiceHistory {
+    creationDate ZonedDateTime,
+	invoiceNumber Integer,
+    eventId String,
+	status String
+}
+
+dto * with mapstruct
+
+// Set service options to all except few
+service all with serviceImpl
+
+// Set pagination options
+// paginate InvoiceNumber, RecyclableInvoiceNumber, InvoiceHistory with pager

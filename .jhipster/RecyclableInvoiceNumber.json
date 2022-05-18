@@ -1,0 +1,28 @@
+{
+  "applications": "*",
+  "changelogDate": "20220518124629",
+  "dto": "mapstruct",
+  "embedded": false,
+  "entityTableName": "recyclable_invoice_number",
+  "fields": [
+    {
+      "fieldName": "creationDate",
+      "fieldType": "ZonedDateTime"
+    },
+    {
+      "fieldName": "invoiceNumber",
+      "fieldType": "Integer"
+    },
+    {
+      "fieldName": "eventId",
+      "fieldType": "String"
+    }
+  ],
+  "fluentMethods": true,
+  "jpaMetamodelFiltering": false,
+  "name": "RecyclableInvoiceNumber",
+  "pagination": "no",
+  "readOnly": false,
+  "relationships": [],
+  "service": "serviceImpl"
+}

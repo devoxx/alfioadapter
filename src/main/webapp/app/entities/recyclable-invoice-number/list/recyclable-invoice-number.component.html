@@ -1,0 +1,82 @@
+<div>
+  <h2 id="page-heading" data-cy="RecyclableInvoiceNumberHeading">
+    <span>Recyclable Invoice Numbers</span>
+
+    <div class="d-flex justify-content-end">
+      <button class="btn btn-info me-2" (click)="loadAll()" [disabled]="isLoading">
+        <fa-icon icon="sync" [spin]="isLoading"></fa-icon>
+        <span>Refresh List</span>
+      </button>
+
+      <button
+        id="jh-create-entity"
+        data-cy="entityCreateButton"
+        class="btn btn-primary jh-create-entity create-recyclable-invoice-number"
+        [routerLink]="['/recyclable-invoice-number/new']"
+      >
+        <fa-icon icon="plus"></fa-icon>
+        <span> Create a new Recyclable Invoice Number </span>
+      </button>
+    </div>
+  </h2>
+
+  <jhi-alert-error></jhi-alert-error>
+
+  <jhi-alert></jhi-alert>
+
+  <div class="alert alert-warning" id="no-result" *ngIf="recyclableInvoiceNumbers?.length === 0">
+    <span>No recyclableInvoiceNumbers found</span>
+  </div>
+
+  <div class="table-responsive" id="entities" *ngIf="recyclableInvoiceNumbers && recyclableInvoiceNumbers.length > 0">
+    <table class="table table-striped" aria-describedby="page-heading">
+      <thead>
+        <tr>
+          <th scope="col"><span>ID</span></th>
+          <th scope="col"><span>Creation Date</span></th>
+          <th scope="col"><span>Invoice Number</span></th>
+          <th scope="col"><span>Event Id</span></th>
+          <th scope="col"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let recyclableInvoiceNumber of recyclableInvoiceNumbers; trackBy: trackId" data-cy="entityTable">
+          <td>
+            <a [routerLink]="['/recyclable-invoice-number', recyclableInvoiceNumber.id, 'view']">{{ recyclableInvoiceNumber.id }}</a>
+          </td>
+          <td>{{ recyclableInvoiceNumber.creationDate | formatMediumDatetime }}</td>
+          <td>{{ recyclableInvoiceNumber.invoiceNumber }}</td>
+          <td>{{ recyclableInvoiceNumber.eventId }}</td>
+          <td class="text-end">
+            <div class="btn-group">
+              <button
+                type="submit"
+                [routerLink]="['/recyclable-invoice-number', recyclableInvoiceNumber.id, 'view']"
+                class="btn btn-info btn-sm"
+                data-cy="entityDetailsButton"
+              >
+                <fa-icon icon="eye"></fa-icon>
+                <span class="d-none d-md-inline">View</span>
+              </button>
+
+              <button
+                type="submit"
+                [routerLink]="['/recyclable-invoice-number', recyclableInvoiceNumber.id, 'edit']"
+                class="btn btn-primary btn-sm"
+                data-cy="entityEditButton"
+              >
+                <fa-icon icon="pencil-alt"></fa-icon>
+                <span class="d-none d-md-inline">Edit</span>
+              </button>
+
+              <button type="submit" (click)="delete(recyclableInvoiceNumber)" class="btn btn-danger btn-sm" data-cy="entityDeleteButton">
+                <fa-icon icon="times"></fa-icon>
+                <span class="d-none d-md-inline">Delete</span>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

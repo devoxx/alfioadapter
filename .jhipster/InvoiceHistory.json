@@ -1,0 +1,32 @@
+{
+  "applications": "*",
+  "changelogDate": "20220518124630",
+  "dto": "mapstruct",
+  "embedded": false,
+  "entityTableName": "invoice_history",
+  "fields": [
+    {
+      "fieldName": "creationDate",
+      "fieldType": "ZonedDateTime"
+    },
+    {
+      "fieldName": "invoiceNumber",
+      "fieldType": "Integer"
+    },
+    {
+      "fieldName": "eventId",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "status",
+      "fieldType": "String"
+    }
+  ],
+  "fluentMethods": true,
+  "jpaMetamodelFiltering": false,
+  "name": "InvoiceHistory",
+  "pagination": "no",
+  "readOnly": false,
+  "relationships": [],
+  "service": "serviceImpl"
+}

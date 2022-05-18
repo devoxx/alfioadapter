@@ -1,0 +1,16 @@
+# This configuration is intended for development purpose, it's **your** responsibility to harden it for production
+# docker-compose -f postgresql.yml up -d --force-recreate
+version: '3.8'
+services:
+  alfioadapter-postgresql:
+    image: postgres:12.9
+    # volumes:
+    #   - ~/volumes/jhipster/alfioadapter/postgresql/:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=alfioadapter
+      - POSTGRES_PASSWORD=
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    # If you want to expose these ports outside your dev PC,
+    # remove the "127.0.0.1:" prefix
+    ports:
+      - 127.0.0.1:5432:5432

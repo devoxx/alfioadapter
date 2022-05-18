@@ -1,0 +1,82 @@
+<div>
+  <h2 id="page-heading" data-cy="InvoiceNumberHeading">
+    <span>Invoice Numbers</span>
+
+    <div class="d-flex justify-content-end">
+      <button class="btn btn-info me-2" (click)="loadAll()" [disabled]="isLoading">
+        <fa-icon icon="sync" [spin]="isLoading"></fa-icon>
+        <span>Refresh List</span>
+      </button>
+
+      <button
+        id="jh-create-entity"
+        data-cy="entityCreateButton"
+        class="btn btn-primary jh-create-entity create-invoice-number"
+        [routerLink]="['/invoice-number/new']"
+      >
+        <fa-icon icon="plus"></fa-icon>
+        <span> Create a new Invoice Number </span>
+      </button>
+    </div>
+  </h2>
+
+  <jhi-alert-error></jhi-alert-error>
+
+  <jhi-alert></jhi-alert>
+
+  <div class="alert alert-warning" id="no-result" *ngIf="invoiceNumbers?.length === 0">
+    <span>No invoiceNumbers found</span>
+  </div>
+
+  <div class="table-responsive" id="entities" *ngIf="invoiceNumbers && invoiceNumbers.length > 0">
+    <table class="table table-striped" aria-describedby="page-heading">
+      <thead>
+        <tr>
+          <th scope="col"><span>ID</span></th>
+          <th scope="col"><span>Creation Date</span></th>
+          <th scope="col"><span>Invoice Number</span></th>
+          <th scope="col"><span>Event Id</span></th>
+          <th scope="col"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let invoiceNumber of invoiceNumbers; trackBy: trackId" data-cy="entityTable">
+          <td>
+            <a [routerLink]="['/invoice-number', invoiceNumber.id, 'view']">{{ invoiceNumber.id }}</a>
+          </td>
+          <td>{{ invoiceNumber.creationDate | formatMediumDatetime }}</td>
+          <td>{{ invoiceNumber.invoiceNumber }}</td>
+          <td>{{ invoiceNumber.eventId }}</td>
+          <td class="text-end">
+            <div class="btn-group">
+              <button
+                type="submit"
+                [routerLink]="['/invoice-number', invoiceNumber.id, 'view']"
+                class="btn btn-info btn-sm"
+                data-cy="entityDetailsButton"
+              >
+                <fa-icon icon="eye"></fa-icon>
+                <span class="d-none d-md-inline">View</span>
+              </button>
+
+              <button
+                type="submit"
+                [routerLink]="['/invoice-number', invoiceNumber.id, 'edit']"
+                class="btn btn-primary btn-sm"
+                data-cy="entityEditButton"
+              >
+                <fa-icon icon="pencil-alt"></fa-icon>
+                <span class="d-none d-md-inline">Edit</span>
+              </button>
+
+              <button type="submit" (click)="delete(invoiceNumber)" class="btn btn-danger btn-sm" data-cy="entityDeleteButton">
+                <fa-icon icon="times"></fa-icon>
+                <span class="d-none d-md-inline">Delete</span>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
