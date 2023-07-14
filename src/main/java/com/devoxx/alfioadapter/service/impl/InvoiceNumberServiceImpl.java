@@ -81,29 +81,23 @@ public class InvoiceNumberServiceImpl implements InvoiceNumberService {
         log.debug("Next invoice number for event {}", eventId);
 
         synchronized (lock) {
-            AtomicInteger invoiceNumber = new AtomicInteger(1);
+            Integer invoiceNumber = 1;
 
             if (recyclableInvoiceNumberRepository.countEventId(eventId) > 0) {
-
                 final RecyclableInvoiceNumber recyclableInvoiceNr = recyclableInvoiceNumberRepository.findLowest(eventId);
-
-                invoiceNumber.set(recyclableInvoiceNr.getInvoiceNumber());
-
+                invoiceNumber = recyclableInvoiceNr.getInvoiceNumber();
                 recyclableInvoiceNumberRepository.deleteById(recyclableInvoiceNr.getId());
 
             } else if (invoiceNumberRepository.countEventId(eventId) > 0) {
-
-                invoiceNumber.set(invoiceNumberRepository.findHighestInvoiceNumber(eventId));
-
-                if (invoiceNumber.get() == Integer.MAX_VALUE) {
+                invoiceNumber = invoiceNumberRepository.findHighestInvoiceNumber(eventId);
+                if (invoiceNumber == Integer.MAX_VALUE) {
                     throw new MaxInvoiceNumberReachedException();
                 }
-
-                invoiceNumber.incrementAndGet();
+                invoiceNumber++;
             }
 
-            saveInvoiceNumber(eventId, invoiceNumber.get());
-            return invoiceNumber.get();
+            saveInvoiceNumber(eventId, invoiceNumber);
+            return invoiceNumber;
         }
     }
 
