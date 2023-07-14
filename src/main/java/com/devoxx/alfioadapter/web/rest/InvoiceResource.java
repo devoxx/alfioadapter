@@ -48,7 +48,7 @@ public class InvoiceResource {
 
         if (body.toLowerCase().contains("invoice_generation")) {
 
-            final Integer invoiceNumber = invoiceNumberService.nextNumber(eventId);
+            final Integer invoiceNumber = invoiceNumberService.nextInvoiceNumber(eventId);
 
             invoiceHistoryService.save(eventId, invoiceNumber, InvoiceHistoryService.Action.GENERATE_INVOICE_NUMBER);
 

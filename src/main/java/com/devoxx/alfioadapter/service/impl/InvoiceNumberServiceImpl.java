@@ -7,6 +7,7 @@ import com.devoxx.alfioadapter.domain.InvoiceNumber;
 import com.devoxx.alfioadapter.repository.InvoiceNumberRepository;
 import com.devoxx.alfioadapter.service.dto.InvoiceNumberDTO;
 import com.devoxx.alfioadapter.service.mapper.InvoiceNumberMapper;
+import com.devoxx.alfioadapter.web.rest.errors.MaxInvoiceNumberReachedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Service Implementation for managing InvoiceNumber.
@@ -30,6 +32,8 @@ public class InvoiceNumberServiceImpl implements InvoiceNumberService {
     private final InvoiceNumberMapper invoiceNumberMapper;
 
     private final RecyclableInvoiceNumberRepository recyclableInvoiceNumberRepository;
+
+    private final Object lock = new Object();
 
     public InvoiceNumberServiceImpl(final RecyclableInvoiceNumberRepository recyclableInvoiceNumberRepository,
                                     final InvoiceNumberRepository invoiceNumberRepository,
@@ -67,35 +71,40 @@ public class InvoiceNumberServiceImpl implements InvoiceNumberService {
             .map(invoiceNumberMapper::toDto);
     }
 
+    /**
+     * Get the next invoice number.
+     * @param eventId event identifier
+     * @return next invoice number
+     */
     @Override
-    public Integer nextNumber(final String eventId) {
-
+    public Integer nextInvoiceNumber(final String eventId) {
         log.debug("Next invoice number for event {}", eventId);
 
-        Integer invoiceNumber = 1;
+        synchronized (lock) {
+            AtomicInteger invoiceNumber = new AtomicInteger(1);
 
-        if (recyclableInvoiceNumberRepository.countEventId(eventId) > 0) {
-            log.debug("Taking a recycled number");
+            if (recyclableInvoiceNumberRepository.countEventId(eventId) > 0) {
 
-            final RecyclableInvoiceNumber recyclableInvoiceNr = recyclableInvoiceNumberRepository.findLowest(eventId);
+                final RecyclableInvoiceNumber recyclableInvoiceNr = recyclableInvoiceNumberRepository.findLowest(eventId);
 
-            invoiceNumber = recyclableInvoiceNr.getInvoiceNumber();
+                invoiceNumber.set(recyclableInvoiceNr.getInvoiceNumber());
 
-            recyclableInvoiceNumberRepository.deleteById(recyclableInvoiceNr.getId());
+                recyclableInvoiceNumberRepository.deleteById(recyclableInvoiceNr.getId());
 
-        } else if (invoiceNumberRepository.countEventId(eventId) > 0) {
+            } else if (invoiceNumberRepository.countEventId(eventId) > 0) {
 
-            log.debug("No recycle numbers found, lets get highest invoice number");
+                invoiceNumber.set(invoiceNumberRepository.findHighestInvoiceNumber(eventId));
 
-            invoiceNumber = invoiceNumberRepository.findHighestInvoiceNumber(eventId);
+                if (invoiceNumber.get() == Integer.MAX_VALUE) {
+                    throw new MaxInvoiceNumberReachedException();
+                }
 
-            log.debug("Invoice number found: {}", invoiceNumber);
+                invoiceNumber.incrementAndGet();
+            }
 
-            invoiceNumber++;
+            saveInvoiceNumber(eventId, invoiceNumber.get());
+            return invoiceNumber.get();
         }
-
-        saveInvoiceNumber(eventId, invoiceNumber);
-        return invoiceNumber;
     }
 
     private void saveInvoiceNumber(final String eventId, final Integer invoiceNumber) {

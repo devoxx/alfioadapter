@@ -52,6 +52,6 @@ public class InvoiceNumberResource {
     @GetMapping("/invoice-numbers/next/{eventId}")
     public Integer getNextAvailableInvoiceNumber(@PathVariable String eventId) {
         log.debug("REST request to get next available invoice number for event {}", eventId);
-        return invoiceNumberService.nextNumber(eventId);
+        return invoiceNumberService.nextInvoiceNumber(eventId);
     }
 }

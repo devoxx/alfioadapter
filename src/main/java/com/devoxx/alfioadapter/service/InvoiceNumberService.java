@@ -2,7 +2,6 @@ package com.devoxx.alfioadapter.service;
 
 import com.devoxx.alfioadapter.domain.InvoiceNumber;
 import com.devoxx.alfioadapter.service.dto.InvoiceNumberDTO;
-import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -38,7 +37,7 @@ public interface InvoiceNumberService {
      * @param eventId event identifier
      * @return next available invoice number
      */
-    Integer nextNumber(String eventId);
+    Integer nextInvoiceNumber(String eventId);
 
     /**
      * Get invoiceNumber by number.
