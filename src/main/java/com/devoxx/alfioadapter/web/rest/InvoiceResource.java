@@ -1,6 +1,5 @@
 package com.devoxx.alfioadapter.web.rest;
 
-import com.devoxx.alfioadapter.domain.InvoiceNumber;
 import com.devoxx.alfioadapter.service.InvoiceHistoryService;
 import com.devoxx.alfioadapter.service.InvoiceNumberService;
 import com.devoxx.alfioadapter.service.RecyclableInvoiceNumberService;
@@ -20,6 +19,7 @@ public class InvoiceResource {
 
     private final Logger log = LoggerFactory.getLogger(InvoiceResource.class);
 
+    public static final int ZERO_INVOICE_NUMBER = 0;
     private final InvoiceNumberService invoiceNumberService;
 
     private final RecyclableInvoiceNumberService recyclableInvoiceNumberService;
@@ -38,10 +38,9 @@ public class InvoiceResource {
      * POST /api/invoice/{eventId}
      * INVOICE_GENERATION
      * @param eventId  the event short name
-     * @param body
+     * @param body the body of the request
      * @return the invoice number
-     *
-     * @link https://github.com/alfio-event/alf.io/blob/master/docs/extensions-howto.md
+     * @link <a href="https://github.com/alfio-event/alf.io/blob/master/docs/extensions-howto.md">More info</a>
      */
     @PostMapping("/{eventId}")
     public Integer getInvoiceNumber(@PathVariable String eventId, @RequestBody String body) {
@@ -64,26 +63,28 @@ public class InvoiceResource {
 
             log.error("Wrong event name, expecting 'invoice_generation' but was '{}'", body);
         }
-        return 0;
+        return ZERO_INVOICE_NUMBER;
     }
 
+    /**
+     * Create a zero invoice number record so the increment logic works faster.
+     * @param eventId event identifier
+     * @return zero invoice number
+     */
     private int createInitInvoice(String eventId) {
         InvoiceNumberDTO invoiceNumberDTO = new InvoiceNumberDTO();
-        invoiceNumberDTO.setInvoiceNumber(0);
+        invoiceNumberDTO.setInvoiceNumber(ZERO_INVOICE_NUMBER);
         invoiceNumberDTO.setCreationDate(ZonedDateTime.now());
         invoiceNumberDTO.setEventId(eventId);
 
         invoiceNumberService.save(invoiceNumberDTO);
 
-        return 0;
+        return ZERO_INVOICE_NUMBER;
     }
 
     /**
      * Confirm an invoice.
-     *
      * RESERVATION_CONFIRMED (additional global variables:  reservation: TicketReservation)
-     *
-     *
      * {"id":"b1903ef5-bfd8-4d70-8dda-0603675b9e5e",
      *  "validity":"Jun 5, 2018 6:00:00 PM",
      *  "status":"COMPLETE",
@@ -129,8 +130,8 @@ public class InvoiceResource {
      *  "vatIncluded":false}]
      *
      * @param eventId  the event short name
-     * @param body
-     * @link https://github.com/alfio-event/alf.io/blob/master/docs/extensions-howto.md
+     * @param body the body of the request
+     * @link <a href="https://github.com/alfio-event/alf.io/blob/master/docs/extensions-howto.md">more info</a>
      */
     @PostMapping("/confirmed/{eventId}")
     public void confirmedInvoice(@PathVariable String eventId, @RequestBody String body) {
@@ -144,13 +145,11 @@ public class InvoiceResource {
 
     /**
      * Cancel an invoice.
-     *
      * RESERVATION_CANCELLED  (reservationIds: String[] - the reservation IDs)
-     *
      * @param eventId  the event short name
      * @param invoiceNumber  the invoice number to recycle
-     * @param body
-     * @link https://github.com/alfio-event/alf.io/blob/master/docs/extensions-howto.md
+     * @param body the body of the request
+     * @link <a href="https://github.com/alfio-event/alf.io/blob/master/docs/extensions-howto.md">more info</a>
      */
     @PostMapping("/cancel/{eventId}/{invoiceNumber}")
     public boolean cancelInvoice(@PathVariable String eventId, @PathVariable Integer invoiceNumber, @RequestBody String body) {
