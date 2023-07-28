@@ -142,15 +142,10 @@ public class InvoiceResource {
 
         if (body.toLowerCase().contains("reservation_cancelled")) {
 
-            // TODO I'm missing the invoice number from ALF.IO that is required to make the invoice number again available into recyclable Invoices.
-            final InvoiceNumber foundInvoiceNumber = invoiceNumberService.findByInvoiceNumber(invoiceNumber);
-
-            if (foundInvoiceNumber != null) {
+            if (invoiceNumber != null) {
                 invoiceHistoryService.save(eventId, invoiceNumber, InvoiceHistoryService.Action.CANCEL_INVOICE);
 
                 recyclableInvoiceNumberService.save(eventId, invoiceNumber);
-
-                invoiceNumberService.delete(foundInvoiceNumber.getId());
 
                 return true;
             } else {

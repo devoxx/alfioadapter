@@ -8,12 +8,15 @@ import com.devoxx.alfioadapter.repository.InvoiceNumberRepository;
 import com.devoxx.alfioadapter.service.dto.InvoiceNumberDTO;
 import com.devoxx.alfioadapter.service.mapper.InvoiceNumberMapper;
 import com.devoxx.alfioadapter.web.rest.errors.MaxInvoiceNumberReachedException;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.PessimisticLockException;
@@ -25,7 +28,7 @@ import java.util.Optional;
  * Service Implementation for managing InvoiceNumber.
  */
 @Service
-@Transactional
+@Transactional(propagation = Propagation.REQUIRED)
 public class InvoiceNumberServiceImpl implements InvoiceNumberService {
 
     private final Logger log = LoggerFactory.getLogger(InvoiceNumberServiceImpl.class);
@@ -79,47 +82,41 @@ public class InvoiceNumberServiceImpl implements InvoiceNumberService {
      * @param eventId event identifier
      * @return next invoice number
      */
-    @Transactional
     @Override
     public Integer nextInvoiceNumber(final String eventId) {
-        log.debug("Next invoice number for event {}", eventId);
-
-        Integer invoiceNumber = 1;
-
         try {
-            if (recyclableInvoiceNumberRepository.countEventId(eventId) > 0) {
-                List<RecyclableInvoiceNumber> recyclableInvoiceNumbers =
-                    recyclableInvoiceNumberRepository.findLowestForUpdate(eventId, PageRequest.of(0, 1));
-
-                if (!recyclableInvoiceNumbers.isEmpty()) {
-                    RecyclableInvoiceNumber recyclableInvoiceNumber = recyclableInvoiceNumbers.get(0);
-                    invoiceNumber = recyclableInvoiceNumber.getInvoiceNumber();
-                    recyclableInvoiceNumberRepository.deleteById(recyclableInvoiceNumber.getId());
-                }
-
-            } else if (invoiceNumberRepository.countEventId(eventId) > 0) {
-                Optional<InvoiceNumber> highestInvoiceNumberOpt = invoiceNumberRepository.findHighestInvoiceNumberForUpdate(eventId);
-
-                if (highestInvoiceNumberOpt.isEmpty()) {
-                    throw new MaxInvoiceNumberReachedException();
-                }
-
-                invoiceNumber = highestInvoiceNumberOpt.get().getInvoiceNumber();
-
-                if (invoiceNumber == Integer.MAX_VALUE) {
-                    throw new MaxInvoiceNumberReachedException();
-                }
-                invoiceNumber++;
-            }
-
-            saveInvoiceNumber(eventId, invoiceNumber);
-            return invoiceNumber;
-
-        } catch (PessimisticLockException e) {
-            log.error("Could not get an invoice number due to a locking conflict", e);
-            // handle the exception, you could decide to re-try, throw an application-specific exception, etc.
-            throw new InvoiceNumberNotGeneratedException(e);
+            return this.recyclableInvoiceNumberRepository.findFirstByEventId(eventId, PageRequest.of(0, 1))
+                .stream().findFirst()
+                .map(recycledInvoiceNumber -> {
+                    Integer recycledNum = recycledInvoiceNumber.getInvoiceNumber();
+                    recyclableInvoiceNumberRepository.delete(recycledInvoiceNumber);
+                    return recycledNum;
+                })
+                .orElseGet(() -> this.invoiceNumberRepository.findByIdForUpdate(eventId)
+                    .map(this::createNewInvoice)
+                    .orElseGet(() -> createFirstInvoice(eventId)));
+        } catch (CannotAcquireLockException ex) {
+            log.error("Could not get an invoice number due to a locking conflict", ex);
+            throw new InvoiceNumberNotGeneratedException(ex);
         }
+    }
+
+    @NotNull
+    private Integer createFirstInvoice(String eventId) {
+        InvoiceNumber newInvoice = new InvoiceNumber();
+        newInvoice.setCreationDate(ZonedDateTime.now());
+        newInvoice.setInvoiceNumber(1);
+        newInvoice.setEventId(eventId);
+        this.invoiceNumberRepository.save(newInvoice);
+        return 1;
+    }
+
+    @NotNull
+    private Integer createNewInvoice(InvoiceNumber existingInvoice) {
+        Integer newInvoiceNumber = existingInvoice.getInvoiceNumber() + 1;
+        existingInvoice.setInvoiceNumber(newInvoiceNumber);
+        this.invoiceNumberRepository.save(existingInvoice);
+        return newInvoiceNumber;
     }
 
     private void saveInvoiceNumber(final String eventId, final Integer invoiceNumber) {

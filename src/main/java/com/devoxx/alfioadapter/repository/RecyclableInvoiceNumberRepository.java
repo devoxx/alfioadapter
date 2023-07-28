@@ -19,10 +19,6 @@ import java.util.List;
 public interface RecyclableInvoiceNumberRepository extends JpaRepository<RecyclableInvoiceNumber, Long> {
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("SELECT r FROM RecyclableInvoiceNumber r WHERE r.eventId = :eventId ORDER BY r.invoiceNumber ASC")
-    List<RecyclableInvoiceNumber> findLowestForUpdate(@Param("eventId") String eventId, @Param("pageable") Pageable pageable);
-
-    @Query("SELECT COUNT(r.invoiceNumber) FROM RecyclableInvoiceNumber r WHERE r.eventId LIKE :eventId")
-    Long countEventId(@Param("eventId") String eventId);
-
+    @Query("select r from RecyclableInvoiceNumber r where r.eventId = :eventId order by r.invoiceNumber")
+    List<RecyclableInvoiceNumber> findFirstByEventId(@Param("eventId") String eventId, @Param("pageable") Pageable pageable);
 }
