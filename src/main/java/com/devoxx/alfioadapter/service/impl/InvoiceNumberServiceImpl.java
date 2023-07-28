@@ -9,6 +9,7 @@ import com.devoxx.alfioadapter.service.mapper.InvoiceNumberMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.CannotAcquireLockException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.PostConstruct;
 import java.time.ZonedDateTime;
 
 /**
@@ -98,14 +100,23 @@ public class InvoiceNumberServiceImpl implements InvoiceNumberService {
         newInvoice.setCreationDate(ZonedDateTime.now());
         newInvoice.setInvoiceNumber(1);
         newInvoice.setEventId(eventId);
-        this.invoiceNumberRepository.save(newInvoice);
+
+        try {
+            this.invoiceNumberRepository.save(newInvoice);
+        } catch (DataIntegrityViolationException ex) {
+            return nextInvoiceNumber(eventId);
+        }
         return 1;
     }
 
     private Integer createNewInvoice(InvoiceNumber existingInvoice) {
         Integer newInvoiceNumber = existingInvoice.getInvoiceNumber() + 1;
         existingInvoice.setInvoiceNumber(newInvoiceNumber);
-        this.invoiceNumberRepository.save(existingInvoice);
+        try {
+            this.invoiceNumberRepository.save(existingInvoice);
+        } catch (DataIntegrityViolationException ex) {
+            return createNewInvoice(existingInvoice);
+        }
         return newInvoiceNumber;
     }
 }

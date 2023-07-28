@@ -4,9 +4,12 @@ import com.devoxx.alfioadapter.domain.InvoiceNumber;
 import com.devoxx.alfioadapter.service.InvoiceHistoryService;
 import com.devoxx.alfioadapter.service.InvoiceNumberService;
 import com.devoxx.alfioadapter.service.RecyclableInvoiceNumberService;
+import com.devoxx.alfioadapter.service.dto.InvoiceNumberDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.ZonedDateTime;
 
 /**
  * REST controller for managing InvoiceNumber.
@@ -33,9 +36,7 @@ public class InvoiceResource {
 
     /**
      * POST /api/invoice/{eventId}
-     *
      * INVOICE_GENERATION
-     *
      * @param eventId  the event short name
      * @param body
      * @return the invoice number
@@ -53,12 +54,27 @@ public class InvoiceResource {
             invoiceHistoryService.save(eventId, invoiceNumber, InvoiceHistoryService.Action.GENERATE_INVOICE_NUMBER);
 
             return invoiceNumber;
+        } else if(body.toLowerCase().contains("invoice_init")) {
+
+            return createInitInvoice(eventId);
+
         } else {
 
             invoiceHistoryService.save(eventId, -1, InvoiceHistoryService.Action.GET_INVOICE_NUMBER_WRONG_ALF_IO_EVENT);
 
             log.error("Wrong event name, expecting 'invoice_generation' but was '{}'", body);
         }
+        return 0;
+    }
+
+    private int createInitInvoice(String eventId) {
+        InvoiceNumberDTO invoiceNumberDTO = new InvoiceNumberDTO();
+        invoiceNumberDTO.setInvoiceNumber(0);
+        invoiceNumberDTO.setCreationDate(ZonedDateTime.now());
+        invoiceNumberDTO.setEventId(eventId);
+
+        invoiceNumberService.save(invoiceNumberDTO);
+
         return 0;
     }
 
