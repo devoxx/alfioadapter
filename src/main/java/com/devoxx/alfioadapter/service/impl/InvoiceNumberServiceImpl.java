@@ -11,12 +11,14 @@ import com.devoxx.alfioadapter.web.rest.errors.MaxInvoiceNumberReachedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.PessimisticLockException;
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -86,17 +88,25 @@ public class InvoiceNumberServiceImpl implements InvoiceNumberService {
 
         try {
             if (recyclableInvoiceNumberRepository.countEventId(eventId) > 0) {
-                Optional<RecyclableInvoiceNumber> recyclableInvoiceNr = recyclableInvoiceNumberRepository.findLowestForUpdate(eventId);
+                List<RecyclableInvoiceNumber> recyclableInvoiceNumbers =
+                    recyclableInvoiceNumberRepository.findLowestForUpdate(eventId, PageRequest.of(0, 1));
 
-                if (recyclableInvoiceNr.isPresent()) {
-                    invoiceNumber = recyclableInvoiceNr.get().getInvoiceNumber();
-                    recyclableInvoiceNumberRepository.deleteById(recyclableInvoiceNr.get().getId());
+                if (!recyclableInvoiceNumbers.isEmpty()) {
+                    RecyclableInvoiceNumber recyclableInvoiceNumber = recyclableInvoiceNumbers.get(0);
+                    invoiceNumber = recyclableInvoiceNumber.getInvoiceNumber();
+                    recyclableInvoiceNumberRepository.deleteById(recyclableInvoiceNumber.getId());
                 }
 
             } else if (invoiceNumberRepository.countEventId(eventId) > 0) {
-                invoiceNumber = invoiceNumberRepository.findHighestInvoiceNumberForUpdate(eventId);
+                Optional<InvoiceNumber> highestInvoiceNumberOpt = invoiceNumberRepository.findHighestInvoiceNumberForUpdate(eventId);
 
-                if (invoiceNumber == null || invoiceNumber == Integer.MAX_VALUE) {
+                if (highestInvoiceNumberOpt.isEmpty()) {
+                    throw new MaxInvoiceNumberReachedException();
+                }
+
+                invoiceNumber = highestInvoiceNumberOpt.get().getInvoiceNumber();
+
+                if (invoiceNumber == Integer.MAX_VALUE) {
                     throw new MaxInvoiceNumberReachedException();
                 }
                 invoiceNumber++;
