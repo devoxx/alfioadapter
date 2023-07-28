@@ -25,25 +25,10 @@ public interface InvoiceNumberService {
     Page<InvoiceNumberDTO> findAll(Pageable page);
 
     /**
-     * Delete the "id" invoiceNumber.
-     *
-     * @param id the id of the entity.
-     */
-    void delete(Long id);
-
-    /**
      * Return next available invoice number.
      *
      * @param eventId event identifier
      * @return next available invoice number
      */
     Integer nextInvoiceNumber(String eventId);
-
-    /**
-     * Get invoiceNumber by number.
-     *
-     * @param invoiceNumber the invoice number
-     * @return the entity
-     */
-    InvoiceNumber findByInvoiceNumber(Integer invoiceNumber);
 }
