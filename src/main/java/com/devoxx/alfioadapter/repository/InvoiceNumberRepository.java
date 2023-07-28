@@ -6,6 +6,8 @@ import org.springframework.stereotype.Repository;
 
 import org.springframework.data.jpa.repository.*;
 
+import javax.persistence.LockModeType;
+
 
 /**
  * Spring Data JPA repository for the InvoiceNumber entity.
@@ -14,8 +16,9 @@ import org.springframework.data.jpa.repository.*;
 @Repository
 public interface InvoiceNumberRepository extends JpaRepository<InvoiceNumber, Long> {
 
-    @Query("SELECT max(i.invoiceNumber) FROM InvoiceNumber i WHERE i.eventId LIKE :eventId")
-    Integer findHighestInvoiceNumber(@Param("eventId") String eventId);
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT MAX(i.invoiceNumber) FROM InvoiceNumber i WHERE i.eventId LIKE :eventId")
+    Integer findHighestInvoiceNumberForUpdate(@Param("eventId") String eventId);
 
     @Query("SELECT count(i.invoiceNumber) FROM InvoiceNumber i WHERE i.eventId LIKE :eventId")
     Long countEventId(@Param("eventId") String eventId);

@@ -15,8 +15,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.PessimisticLockException;
 import java.time.ZonedDateTime;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Optional;
 
 /**
  * Service Implementation for managing InvoiceNumber.
@@ -76,21 +77,26 @@ public class InvoiceNumberServiceImpl implements InvoiceNumberService {
      * @param eventId event identifier
      * @return next invoice number
      */
+    @Transactional
     @Override
     public Integer nextInvoiceNumber(final String eventId) {
         log.debug("Next invoice number for event {}", eventId);
 
-        synchronized (lock) {
-            Integer invoiceNumber = 1;
+        Integer invoiceNumber = 1;
 
+        try {
             if (recyclableInvoiceNumberRepository.countEventId(eventId) > 0) {
-                final RecyclableInvoiceNumber recyclableInvoiceNr = recyclableInvoiceNumberRepository.findLowest(eventId);
-                invoiceNumber = recyclableInvoiceNr.getInvoiceNumber();
-                recyclableInvoiceNumberRepository.deleteById(recyclableInvoiceNr.getId());
+                Optional<RecyclableInvoiceNumber> recyclableInvoiceNr = recyclableInvoiceNumberRepository.findLowestForUpdate(eventId);
+
+                if (recyclableInvoiceNr.isPresent()) {
+                    invoiceNumber = recyclableInvoiceNr.get().getInvoiceNumber();
+                    recyclableInvoiceNumberRepository.deleteById(recyclableInvoiceNr.get().getId());
+                }
 
             } else if (invoiceNumberRepository.countEventId(eventId) > 0) {
-                invoiceNumber = invoiceNumberRepository.findHighestInvoiceNumber(eventId);
-                if (invoiceNumber == Integer.MAX_VALUE) {
+                invoiceNumber = invoiceNumberRepository.findHighestInvoiceNumberForUpdate(eventId);
+
+                if (invoiceNumber == null || invoiceNumber == Integer.MAX_VALUE) {
                     throw new MaxInvoiceNumberReachedException();
                 }
                 invoiceNumber++;
@@ -98,6 +104,11 @@ public class InvoiceNumberServiceImpl implements InvoiceNumberService {
 
             saveInvoiceNumber(eventId, invoiceNumber);
             return invoiceNumber;
+
+        } catch (PessimisticLockException e) {
+            log.error("Could not get an invoice number due to a locking conflict", e);
+            // handle the exception, you could decide to re-try, throw an application-specific exception, etc.
+            throw new InvoiceNumberNotGeneratedException(e);
         }
     }
 

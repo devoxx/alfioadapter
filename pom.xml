@@ -7,7 +7,7 @@
 
     <groupId>com.devoxx.alfioadapter</groupId>
     <artifactId>alfioadapter</artifactId>
-    <version>0.1.1</version>
+    <version>0.1.2</version>
     <packaging>jar</packaging>
     <name>Alfioadapter</name>
     <description>Description for alfioadapter</description>
