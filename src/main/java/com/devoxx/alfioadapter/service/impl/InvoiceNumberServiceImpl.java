@@ -95,6 +95,14 @@ public class InvoiceNumberServiceImpl implements InvoiceNumberService {
         }
     }
 
+    /**
+     * Get one invoiceNumber by id.
+     * Other approach: Hibernate can handle the optimistic locking by comparing the version field in the entity with
+     * the current @version in the database. If the versions don't match, it means another transaction has updated
+     * the entity since you fetched it, and Hibernate will throw a OptimisticLockingFailureException.
+     * @param eventId the id of the entity
+     * @return the entity
+     */
     private Integer createFirstInvoice(String eventId) {
         InvoiceNumber newInvoice = new InvoiceNumber();
         newInvoice.setCreationDate(ZonedDateTime.now());

@@ -50,6 +50,37 @@ Add the `help` flag on any command to see how you can use it. For example, `npm 
 
 The `npm run` command will list all of the scripts available to run for this project.
 
+## Load Test how-to
+
+```
+brew install siege
+```
+
+### 1. init invoice number
+
+```
+curl -vvv -X POST -H "Content-Type: application/json" -d "invoice_init" https://payment.devoxx.be/api/invoice/99
+```
+
+### 2. launch the load test
+
+```
+siege -c200 -t120s --content-type "application/json" 'https://payment.devoxx.be/api/invoice/99 POST "invoice_generation"'
+```
+
+this will run for 2 minutes simulating a load of 200 concurrent users
+
+### 3. Cancel invoices
+
+open another terminal and execute the script as follows:
+
+```
+./delete-reservations.sh 250
+```
+
+where `250` is an arbitrary number. The script will randomly keep cancelling invoices numbers in the interval [1-250]
+
+
 ### PWA Support
 
 JHipster ships with PWA (Progressive Web App) support, and it's turned off by default. One of the main components of a PWA is a service worker.
