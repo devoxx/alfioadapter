@@ -43,6 +43,8 @@ spring:
   liquibase:
     # Remove 'faker' if you do not want the sample data to be loaded automatically
     contexts: dev
+    # Create the database if it does not exist
+    enabled: true
   mail:
     host: localhost
     port: 25

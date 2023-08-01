@@ -14,7 +14,6 @@ import java.util.List;
 /**
  * Spring Data JPA repository for the RecyclableInvoiceNumber entity.
  */
-@SuppressWarnings("unused")
 @Repository
 public interface RecyclableInvoiceNumberRepository extends JpaRepository<RecyclableInvoiceNumber, Long> {
 

@@ -3,12 +3,9 @@ package com.devoxx.alfioadapter.web.rest;
 import com.devoxx.alfioadapter.service.InvoiceHistoryService;
 import com.devoxx.alfioadapter.service.InvoiceNumberService;
 import com.devoxx.alfioadapter.service.RecyclableInvoiceNumberService;
-import com.devoxx.alfioadapter.service.dto.InvoiceNumberDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.ZonedDateTime;
 
 /**
  * REST controller for managing InvoiceNumber.
@@ -18,12 +15,12 @@ import java.time.ZonedDateTime;
 public class InvoiceResource {
 
     private final Logger log = LoggerFactory.getLogger(InvoiceResource.class);
-
+    public static final String RESERVATION_CANCELLED = "reservation_cancelled";
+    public static final String INVOICE_GENERATION = "invoice_generation";
+    public static final String INVOICE_INIT = "invoice_init";
     public static final int ZERO_INVOICE_NUMBER = 0;
     private final InvoiceNumberService invoiceNumberService;
-
     private final RecyclableInvoiceNumberService recyclableInvoiceNumberService;
-
     private final InvoiceHistoryService invoiceHistoryService;
 
     InvoiceResource(final InvoiceNumberService invoiceNumberService,
@@ -46,16 +43,13 @@ public class InvoiceResource {
     public Integer getInvoiceNumber(@PathVariable String eventId, @RequestBody String body) {
         log.debug("ALF.IO: getInvoiceNumber for event '{}' with body '{}'", eventId, body);
 
-        if (body.toLowerCase().contains("invoice_generation")) {
+        if (body.toLowerCase().contains(INVOICE_GENERATION)) {
 
-            final Integer invoiceNumber = invoiceNumberService.nextInvoiceNumber(eventId);
+            return createInvoiceNumber(eventId);
 
-            invoiceHistoryService.save(eventId, invoiceNumber, InvoiceHistoryService.Action.GENERATE_INVOICE_NUMBER);
+        } else if(body.toLowerCase().contains(INVOICE_INIT)) {
 
-            return invoiceNumber;
-        } else if(body.toLowerCase().contains("invoice_init")) {
-
-            return createInitInvoice(eventId);
+            return invoiceNumberService.createInitInvoice(eventId);
 
         } else {
 
@@ -67,19 +61,14 @@ public class InvoiceResource {
     }
 
     /**
-     * Create a zero invoice number record so the increment logic works faster.
+     * Create a new invoice number record.
      * @param eventId event identifier
-     * @return zero invoice number
+     * @return the invoice number
      */
-    private int createInitInvoice(String eventId) {
-        InvoiceNumberDTO invoiceNumberDTO = new InvoiceNumberDTO();
-        invoiceNumberDTO.setInvoiceNumber(ZERO_INVOICE_NUMBER);
-        invoiceNumberDTO.setCreationDate(ZonedDateTime.now());
-        invoiceNumberDTO.setEventId(eventId);
-
-        invoiceNumberService.save(invoiceNumberDTO);
-
-        return ZERO_INVOICE_NUMBER;
+    private Integer createInvoiceNumber(String eventId) {
+        final Integer invoiceNumber = invoiceNumberService.nextInvoiceNumber(eventId);
+        invoiceHistoryService.save(eventId, invoiceNumber, InvoiceHistoryService.Action.GENERATE_INVOICE_NUMBER);
+        return invoiceNumber;
     }
 
     /**
@@ -155,7 +144,7 @@ public class InvoiceResource {
     public boolean cancelInvoice(@PathVariable String eventId, @PathVariable Integer invoiceNumber, @RequestBody String body) {
         log.debug("ALF.IO: cancelInvoice for event '{}' with invoice number '{}'", eventId, invoiceNumber);
 
-        if (body.toLowerCase().contains("reservation_cancelled")) {
+        if (body.toLowerCase().contains(RESERVATION_CANCELLED)) {
 
             if (invoiceNumber != null) {
                 invoiceHistoryService.save(eventId, invoiceNumber, InvoiceHistoryService.Action.CANCEL_INVOICE);

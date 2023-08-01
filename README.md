@@ -67,6 +67,19 @@ curl -vvv -X POST -H "Content-Type: application/json" -d "invoice_init" https://
 ```
 siege -c200 -t120s --content-type "application/json" 'https://payment.devoxx.be/api/invoice/99 POST "invoice_generation"'
 ```
+ 
+Create init records first to test locally with the following command:
+
+```
+curl http://localhost:8080/api/invoice/99 -X POST -H "Content-Type: application/json" -d "invoice_init"
+```
+
+then run the load test with the following command:
+
+```
+
+siege -c200 -t120s --content-type "application/json" 'http://localhost:8080/api/invoice/99 POST "invoice_generation"'
+```
 
 this will run for 2 minutes simulating a load of 200 concurrent users
 

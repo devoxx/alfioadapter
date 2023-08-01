@@ -6,6 +6,9 @@ import com.devoxx.alfioadapter.domain.InvoiceNumber;
 import com.devoxx.alfioadapter.repository.InvoiceNumberRepository;
 import com.devoxx.alfioadapter.service.dto.InvoiceNumberDTO;
 import com.devoxx.alfioadapter.service.mapper.InvoiceNumberMapper;
+import com.devoxx.alfioadapter.web.rest.InvoiceResource;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.CannotAcquireLockException;
@@ -17,20 +20,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
 import java.time.ZonedDateTime;
 
 /**
  * Service Implementation for managing InvoiceNumber.
  */
 @Service
-@Transactional(propagation = Propagation.REQUIRED)
 public class InvoiceNumberServiceImpl implements InvoiceNumberService {
 
+    public static final int PAGE_ZERO = 0;
+    public static final int ONE_ELEMENT = 1;
     private final Logger log = LoggerFactory.getLogger(InvoiceNumberServiceImpl.class);
-
+    public static final int ZERO_INVOICE_NUMBER = PAGE_ZERO;
     private final InvoiceNumberRepository invoiceNumberRepository;
-
     private final InvoiceNumberMapper invoiceNumberMapper;
 
     private final RecyclableInvoiceNumberRepository recyclableInvoiceNumberRepository;
@@ -49,6 +51,7 @@ public class InvoiceNumberServiceImpl implements InvoiceNumberService {
      * @param invoiceNumberDTO the entity to save
      * @return the persisted entity
      */
+    @Transactional
     @Override
     public InvoiceNumberDTO save(InvoiceNumberDTO invoiceNumberDTO) {
         log.debug("Request to save InvoiceNumber : {}", invoiceNumberDTO);
@@ -76,55 +79,59 @@ public class InvoiceNumberServiceImpl implements InvoiceNumberService {
      * @param eventId event identifier
      * @return next invoice number
      */
+    @NotNull
     @Override
+    @Transactional(propagation = Propagation.REQUIRED)
     public Integer nextInvoiceNumber(final String eventId) {
         try {
-            return this.recyclableInvoiceNumberRepository.findFirstByEventId(eventId, PageRequest.of(0, 1))
+            return this.recyclableInvoiceNumberRepository.findFirstByEventId(eventId, PageRequest.of(PAGE_ZERO, ONE_ELEMENT))
                 .stream().findFirst()
                 .map(recycledInvoiceNumber -> {
                     Integer recycledNum = recycledInvoiceNumber.getInvoiceNumber();
                     recyclableInvoiceNumberRepository.delete(recycledInvoiceNumber);
                     return recycledNum;
                 })
-                .orElseGet(() -> this.invoiceNumberRepository.findByIdForUpdate(eventId)
-                    .map(this::createNewInvoice)
-                    .orElseGet(() -> createFirstInvoice(eventId)));
+                .orElseGet(() ->
+                        this.invoiceNumberRepository.findByIdForUpdate(eventId)
+                                                    .map(this::createNewInvoice)
+                                                    .orElse(ZERO_INVOICE_NUMBER));
         } catch (CannotAcquireLockException ex) {
             log.error("Could not get an invoice number due to a locking conflict", ex);
-            throw new InvoiceNumberNotGeneratedException(ex);
+            return ZERO_INVOICE_NUMBER;
         }
     }
 
     /**
-     * Get one invoiceNumber by id.
-     * Other approach: Hibernate can handle the optimistic locking by comparing the version field in the entity with
-     * the current @version in the database. If the versions don't match, it means another transaction has updated
-     * the entity since you fetched it, and Hibernate will throw a OptimisticLockingFailureException.
-     * @param eventId the id of the entity
-     * @return the entity
+     * Create a new invoice number.
+     * @param existingInvoice existing invoice number
+     * @return new invoice number
      */
-    private Integer createFirstInvoice(String eventId) {
-        InvoiceNumber newInvoice = new InvoiceNumber();
-        newInvoice.setCreationDate(ZonedDateTime.now());
-        newInvoice.setInvoiceNumber(1);
-        newInvoice.setEventId(eventId);
-
-        try {
-            this.invoiceNumberRepository.save(newInvoice);
-        } catch (DataIntegrityViolationException ex) {
-            return nextInvoiceNumber(eventId);
-        }
-        return 1;
-    }
-
-    private Integer createNewInvoice(InvoiceNumber existingInvoice) {
-        Integer newInvoiceNumber = existingInvoice.getInvoiceNumber() + 1;
+    public Integer createNewInvoice(InvoiceNumber existingInvoice) {
+        Integer newInvoiceNumber = existingInvoice.getInvoiceNumber() + ONE_ELEMENT;
         existingInvoice.setInvoiceNumber(newInvoiceNumber);
         try {
             this.invoiceNumberRepository.save(existingInvoice);
         } catch (DataIntegrityViolationException ex) {
-            return createNewInvoice(existingInvoice);
+            log.error("Could not create a new invoice number due to a data integrity violation", ex);
+            return ZERO_INVOICE_NUMBER;
         }
         return newInvoiceNumber;
+    }
+
+    /**
+     * Create a zero invoice number record so the invoice number increment logic works correctly.
+     *
+     * @param eventId event identifier
+     * @return zero invoice number
+     */
+    @Transactional
+    public int createInitInvoice(String eventId) {
+        InvoiceNumberDTO invoiceNumberDTO = new InvoiceNumberDTO();
+        invoiceNumberDTO.setInvoiceNumber(InvoiceResource.ZERO_INVOICE_NUMBER);
+        invoiceNumberDTO.setCreationDate(ZonedDateTime.now());
+        invoiceNumberDTO.setEventId(eventId);
+
+        InvoiceNumberDTO savedInvoice = save(invoiceNumberDTO);
+        return savedInvoice.getInvoiceNumber();
     }
 }

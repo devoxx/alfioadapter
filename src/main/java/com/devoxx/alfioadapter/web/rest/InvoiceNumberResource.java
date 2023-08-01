@@ -31,7 +31,7 @@ public class InvoiceNumberResource {
     }
 
     /**
-     * GET  /invoice-numbers : get all the invoiceNumbers.
+     * GET /invoice-numbers: get all the invoiceNumbers.
      *
      * @param pageable the pagination information
      * @return the ResponseEntity with status 200 (OK) and the list of invoiceNumbers in body
@@ -45,7 +45,7 @@ public class InvoiceNumberResource {
     }
 
     /**
-     * GET  /invoice-numbers : get all the invoiceNumbers.
+     * GET /invoice-numbers: get all the invoiceNumbers.
      *
      * @return the ResponseEntity with status 200 (OK) and the list of invoiceNumbers in body
      */
