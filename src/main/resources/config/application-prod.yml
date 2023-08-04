@@ -39,8 +39,8 @@ spring:
     hikari:
       poolName: Hikari
       auto-commit: false
-      maximumPoolSize: 10
-      minimumIdle: 5
+      maximumPoolSize: 40
+      minimumIdle: 30
       idleTimeout: 300000
       connectionTimeout: 30000
   jpa:
