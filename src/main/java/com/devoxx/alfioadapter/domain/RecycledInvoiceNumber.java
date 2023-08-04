@@ -10,7 +10,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
  * A RecyclableInvoiceNumber.
  */
 @Entity
-@Table(name = "recyclable_invoice_number")
+@Table(name = "recycled_invoice_numbers")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class RecycledInvoiceNumber implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -23,7 +23,7 @@ public class RecycledInvoiceNumber implements Serializable {
     private ZonedDateTime creationDate;
 
     @Column(name = "event_invoice_number")
-    private Integer eventInvoiceNumber;
+    private Integer invoiceNumber;
 
     @Column(name = "event_id")
     private Integer eventId;
@@ -54,17 +54,17 @@ public class RecycledInvoiceNumber implements Serializable {
         this.creationDate = creationDate;
     }
 
-    public Integer getEventInvoiceNumber() {
-        return this.eventInvoiceNumber;
+    public Integer getInvoiceNumber() {
+        return this.invoiceNumber;
     }
 
     public RecycledInvoiceNumber invoiceNumber(Integer invoiceNumber) {
-        this.setEventInvoiceNumber(invoiceNumber);
+        this.setInvoiceNumber(invoiceNumber);
         return this;
     }
 
-    public void setEventInvoiceNumber(Integer invoiceNumber) {
-        this.eventInvoiceNumber = invoiceNumber;
+    public void setInvoiceNumber(Integer invoiceNumber) {
+        this.invoiceNumber = invoiceNumber;
     }
 
     public Integer getEventId() {
@@ -103,7 +103,7 @@ public class RecycledInvoiceNumber implements Serializable {
         return "RecyclableInvoiceNumber{" +
             "id=" + getId() +
             ", creationDate='" + getCreationDate() + "'" +
-            ", eventInvoiceNumber=" + getEventInvoiceNumber() +
+            ", eventInvoiceNumber=" + getInvoiceNumber() +
             ", eventId='" + getEventId() + "'" +
             "}";
     }

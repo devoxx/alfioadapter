@@ -39,10 +39,10 @@ spring:
     hikari:
       poolName: Hikari
       auto-commit: false
-      maximumPoolSize: 40
-      minimumIdle: 30
-      idleTimeout: 300000
-      connectionTimeout: 30000
+      maximumPoolSize: ${alfio.database.maximumPoolSize}
+      minimumIdle: ${alfio.database.minimumIdle}
+      idleTimeout: ${alfio.database.idleTimeout}
+      connectionTimeout: ${alfio.database.connectionTimeout}
   jpa:
     database-platform: tech.jhipster.domain.util.FixedPostgreSQL10Dialect
   # Replace by 'prod, faker' to add the faker context and have sample data loaded in production

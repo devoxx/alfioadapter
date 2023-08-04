@@ -74,8 +74,9 @@ curl http://localhost:8080/api/invoice/99 -X POST -H "Content-Type: application/
 
 ### 3. Cancel an invoice number
 
+cancel/{eventId}/{invoiceNumber}
 ```
-curl http://localhost:8080/api/invoice/99 -X POST -H "Content-Type: application/json" -d "invoice_generation"
+curl http://localhost:8080/api/invoice/cancel/99/2 -X POST -H "Content-Type: application/json" -d "reservation_cancelled"
 ```
 
 ### 4. launch the load test

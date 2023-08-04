@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository;
  * Spring Data JPA repository for the RecyclableInvoiceNumber entity.
  */
 @Repository
-public interface RecyclableInvoiceNumberRepository extends JpaRepository<RecycledInvoiceNumber, Long> {
+public interface RecycledInvoiceNumberRepository extends JpaRepository<RecycledInvoiceNumber, Long> {
 }

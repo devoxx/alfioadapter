@@ -1,6 +1,6 @@
 package com.devoxx.alfioadapter.service.impl;
 
-import com.devoxx.alfioadapter.repository.RecyclableInvoiceNumberRepository;
+import com.devoxx.alfioadapter.repository.RecycledInvoiceNumberRepository;
 import com.devoxx.alfioadapter.service.RecyclableInvoiceNumberService;
 import com.devoxx.alfioadapter.service.dto.RecyclableInvoiceNumberDTO;
 import com.devoxx.alfioadapter.service.mapper.RecyclableInvoiceNumberMapper;
@@ -20,10 +20,13 @@ public class RecyclableInvoiceNumberServiceImpl implements RecyclableInvoiceNumb
 
     private final Logger log = LoggerFactory.getLogger(RecyclableInvoiceNumberServiceImpl.class);
 
-    private final RecyclableInvoiceNumberRepository recyclableInvoiceNumberRepository;
+    private final RecycledInvoiceNumberRepository recyclableInvoiceNumberRepository;
+    private final RecyclableInvoiceNumberMapper recyclableInvoiceNumberMapper;
 
-    public RecyclableInvoiceNumberServiceImpl(RecyclableInvoiceNumberRepository recyclableInvoiceNumberRepository) {
+    public RecyclableInvoiceNumberServiceImpl(RecycledInvoiceNumberRepository recyclableInvoiceNumberRepository,
+                                              RecyclableInvoiceNumberMapper recyclableInvoiceNumberMapper) {
         this.recyclableInvoiceNumberRepository = recyclableInvoiceNumberRepository;
+        this.recyclableInvoiceNumberMapper = recyclableInvoiceNumberMapper;
     }
 
     /**
@@ -36,9 +39,8 @@ public class RecyclableInvoiceNumberServiceImpl implements RecyclableInvoiceNumb
     @Transactional(readOnly = true)
     public Page<RecyclableInvoiceNumberDTO> findAll(Pageable pageable) {
         log.debug("Request to get all RecyclableInvoiceNumbers");
-//        return recyclableInvoiceNumberRepository.findAll(pageable)
-//            .map(recyclableInvoiceNumberMapper::);
-        return null;
+        return recyclableInvoiceNumberRepository.findAll(pageable)
+            .map(recyclableInvoiceNumberMapper::toDto);
     }
 
     /**

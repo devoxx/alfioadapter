@@ -23,7 +23,7 @@ public class EventInvoiceNumber implements Serializable {
     @Column(name = "creation_date")
     private ZonedDateTime creationDate;
 
-    @Column(name = "invoice_number")
+    @Column(name = "event_invoice_number")
     private Integer invoiceNumber;
 
     @Column(name = "event_id")
