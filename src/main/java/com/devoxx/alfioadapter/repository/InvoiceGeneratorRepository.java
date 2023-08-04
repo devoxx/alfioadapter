@@ -39,7 +39,7 @@ public class InvoiceGeneratorRepository {
     public void createDatabaseSequence(Integer eventId) {
         log.debug("Request to create database sequence for event {}", eventId);
 
-        String sql = String.format("CREATE SEQUENCE %s%d CACHE 2000;", INVOICE_NUMBER_SEQ_PREFIX, eventId);
+        String sql = String.format("CREATE SEQUENCE %s%d", INVOICE_NUMBER_SEQ_PREFIX, eventId);
 
         try (Connection connection = dataSource.getConnection(); Statement stmt = connection.createStatement()) {
             connection.setAutoCommit(true);
