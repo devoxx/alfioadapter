@@ -85,7 +85,7 @@ siege -c200 -t10s --content-type "application/json" 'http://localhost:8080/api/i
 ```
 
 ```
-siege -c200 -t120s --content-type "application/json" 'https://payment.devoxx.be/api/invoice/99 POST "invoice_generation"'
+siege -c200 -t10s --content-type "application/json" 'https://payment.devoxx.be/api/invoice/99 POST "invoice_generation"'
 ```
 
  
