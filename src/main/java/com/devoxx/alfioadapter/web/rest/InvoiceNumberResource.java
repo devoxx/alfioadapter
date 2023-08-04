@@ -1,6 +1,7 @@
 package com.devoxx.alfioadapter.web.rest;
 
-import com.devoxx.alfioadapter.service.InvoiceNumberService;
+import com.devoxx.alfioadapter.repository.InvoiceGeneratorRepository;
+import com.devoxx.alfioadapter.service.EventInvoiceNumberService;
 import com.devoxx.alfioadapter.service.dto.InvoiceNumberDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,10 +25,13 @@ public class InvoiceNumberResource {
 
     private final Logger log = LoggerFactory.getLogger(InvoiceNumberResource.class);
 
-    private final InvoiceNumberService invoiceNumberService;
+    private final EventInvoiceNumberService eventInvoiceNumberService;
+    private final InvoiceGeneratorRepository invoiceGeneratorRepository;
 
-    InvoiceNumberResource(InvoiceNumberService invoiceNumberService) {
-        this.invoiceNumberService = invoiceNumberService;
+    InvoiceNumberResource(EventInvoiceNumberService eventInvoiceNumberService,
+                          InvoiceGeneratorRepository invoiceGeneratorRepository) {
+        this.eventInvoiceNumberService = eventInvoiceNumberService;
+        this.invoiceGeneratorRepository = invoiceGeneratorRepository;
     }
 
     /**
@@ -39,19 +43,19 @@ public class InvoiceNumberResource {
     @GetMapping("/invoice-numbers")
     public ResponseEntity<List<InvoiceNumberDTO>> getAllInvoiceNumbers(@org.springdoc.api.annotations.ParameterObject Pageable pageable) {
         log.debug("REST request to get a page of InvoiceNumbers");
-        Page<InvoiceNumberDTO> page = invoiceNumberService.findAll(pageable);
+        Page<InvoiceNumberDTO> page = eventInvoiceNumberService.findAll(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 
     /**
-     * GET /invoice-numbers: get all the invoiceNumbers.
+     * GET /invoice-numbers/next/{eventId}: get the next invoice number for event.
      *
      * @return the ResponseEntity with status 200 (OK) and the list of invoiceNumbers in body
      */
     @GetMapping("/invoice-numbers/next/{eventId}")
-    public Integer getNextAvailableInvoiceNumber(@PathVariable String eventId) {
+    public Integer getNextAvailableInvoiceNumber(@PathVariable Integer eventId) {
         log.debug("REST request to get next available invoice number for event {}", eventId);
-        return invoiceNumberService.nextInvoiceNumber(eventId);
+        return invoiceGeneratorRepository.getNextInvoiceNumber(eventId);
     }
 }

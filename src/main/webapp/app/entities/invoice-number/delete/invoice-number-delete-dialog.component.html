@@ -1,4 +1,4 @@
-<form *ngIf="invoiceNumber" name="deleteForm" (ngSubmit)="confirmDelete(invoiceNumber.id!)">
+<form *ngIf="eventInvoiceNumber" name="deleteForm" (ngSubmit)="confirmDelete(eventInvoiceNumber.id!)">
   <div class="modal-header">
     <h4 class="modal-title" data-cy="invoiceNumberDeleteDialogHeading">Confirm delete operation</h4>
 
@@ -8,7 +8,7 @@
   <div class="modal-body">
     <jhi-alert-error></jhi-alert-error>
 
-    <p id="jhi-delete-invoiceNumber-heading">Are you sure you want to delete this Invoice Number?</p>
+    <p id="jhi-delete-eventInvoiceNumber-heading">Are you sure you want to delete this Invoice Number?</p>
   </div>
 
   <div class="modal-footer">
@@ -16,7 +16,7 @@
       <fa-icon icon="ban"></fa-icon>&nbsp;<span>Cancel</span>
     </button>
 
-    <button id="jhi-confirm-delete-invoiceNumber" data-cy="entityConfirmDeleteButton" type="submit" class="btn btn-danger">
+    <button id="jhi-confirm-delete-eventInvoiceNumber" data-cy="entityConfirmDeleteButton" type="submit" class="btn btn-danger">
       <fa-icon icon="times"></fa-icon>&nbsp;<span>Delete</span>
     </button>
   </div>

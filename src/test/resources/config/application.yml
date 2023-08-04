@@ -22,17 +22,17 @@ spring:
 
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:h2:mem:alfioadapter;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    name:
-    username:
-    password:
+    url: jdbc:postgresql://localhost:5432/alfioadapter
+    username: postgres
+    password: mysecretpassword
     hikari:
+      poolName: Hikari
       auto-commit: false
   jackson:
     serialization:
       write-durations-as-timestamps: false
   jpa:
-    database-platform: tech.jhipster.domain.util.FixedH2Dialect
+    database-platform: tech.jhipster.domain.util.FixedPostgreSQL10Dialect
     open-in-view: false
     hibernate:
       ddl-auto: none
@@ -46,10 +46,11 @@ spring:
       hibernate.cache.use_query_cache: false
       hibernate.generate_statistics: false
       hibernate.hbm2ddl.auto: validate
-      hibernate.jdbc.time_zone: UTC
+      hibernate.jdbc.time_zoned: UTC
       hibernate.query.fail_on_pagination_over_collection_fetch: true
   liquibase:
     contexts: test
+    enabled: true
   mail:
     host: localhost
   main:

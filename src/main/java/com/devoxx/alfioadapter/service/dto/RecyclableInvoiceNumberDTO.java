@@ -5,7 +5,7 @@ import java.time.ZonedDateTime;
 import java.util.Objects;
 
 /**
- * A DTO for the {@link com.devoxx.alfioadapter.domain.RecyclableInvoiceNumber} entity.
+ * A DTO for the {@link RecycledInvoiceNumber} entity.
  */
 public class RecyclableInvoiceNumberDTO implements Serializable {
 

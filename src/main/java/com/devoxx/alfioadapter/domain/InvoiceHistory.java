@@ -29,7 +29,7 @@ public class InvoiceHistory implements Serializable {
     private Integer invoiceNumber;
 
     @Column(name = "event_id")
-    private String eventId;
+    private Integer eventId;
 
     @Column(name = "status")
     private String status;
@@ -75,16 +75,16 @@ public class InvoiceHistory implements Serializable {
         this.invoiceNumber = invoiceNumber;
     }
 
-    public String getEventId() {
+    public Integer getEventId() {
         return this.eventId;
     }
 
-    public InvoiceHistory eventId(String eventId) {
+    public InvoiceHistory eventId(Integer eventId) {
         this.setEventId(eventId);
         return this;
     }
 
-    public void setEventId(String eventId) {
+    public void setEventId(Integer eventId) {
         this.eventId = eventId;
     }
 

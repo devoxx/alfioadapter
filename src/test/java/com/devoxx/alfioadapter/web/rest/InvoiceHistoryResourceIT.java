@@ -30,7 +30,7 @@ class InvoiceHistoryResourceIT {
 
     private static final ZonedDateTime DEFAULT_CREATION_DATE = ZonedDateTime.ofInstant(Instant.ofEpochMilli(0L), ZoneOffset.UTC);
     private static final Integer DEFAULT_INVOICE_NUMBER = 1;
-    private static final String DEFAULT_EVENT_ID = "AAAAAAAAAA";
+    private static final Integer DEFAULT_EVENT_ID = 99;
     private static final String DEFAULT_STATUS = "AAAAAAAAAA";
     private static final String ENTITY_API_URL = "/api/invoice-histories";
     @Autowired

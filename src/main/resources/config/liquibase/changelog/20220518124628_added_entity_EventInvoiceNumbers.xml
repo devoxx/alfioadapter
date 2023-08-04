@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="1" author="author">
+        <!-- Invoice numbers table -->
+        <createTable tableName="event_invoice_number">
+
+            <column name="id" type="SERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="creation_date" type="${datetimeType}" defaultValueDate="CURRENT_TIMESTAMP"/>
+
+            <column name="event_id" type="INT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="event_invoice_number" type="INT">
+                <constraints nullable="false"/>
+            </column>
+
+        </createTable>
+
+        <addUniqueConstraint tableName="event_invoice_number"
+                             columnNames="event_id, event_invoice_number"
+                             constraintName="unique_event_invoice_number"/>
+
+        <createSequence sequenceName="invoice_number_seq" startValue="1" incrementBy="1"/>
+
+    </changeSet>
+</databaseChangeLog>

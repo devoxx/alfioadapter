@@ -1,11 +1,13 @@
 package com.devoxx.alfioadapter.service.dto;
 
+import com.devoxx.alfioadapter.domain.EventInvoiceNumber;
+
 import java.io.Serializable;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 
 /**
- * A DTO for the {@link com.devoxx.alfioadapter.domain.InvoiceNumber} entity.
+ * A DTO for the {@link EventInvoiceNumber} entity.
  */
 public class InvoiceNumberDTO implements Serializable {
 

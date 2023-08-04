@@ -8,7 +8,7 @@ import { InvoiceNumberService } from '../service/invoice-number.service';
   templateUrl: './invoice-number-delete-dialog.component.html',
 })
 export class InvoiceNumberDeleteDialogComponent {
-  invoiceNumber?: IInvoiceNumber;
+  eventInvoiceNumber?: IInvoiceNumber;
 
   constructor(protected invoiceNumberService: InvoiceNumberService, protected activeModal: NgbActiveModal) {}
 
