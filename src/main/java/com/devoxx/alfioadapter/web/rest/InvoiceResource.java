@@ -16,6 +16,7 @@ public class InvoiceResource {
     private final Logger log = LoggerFactory.getLogger(InvoiceResource.class);
     public static final String RESERVATION_CANCELLED = "reservation_cancelled";
     public static final String INVOICE_GENERATION = "invoice_generation";
+    public static final String INVOICE_INIT = "invoice_init";
     private static final Integer ZERO_INVOICE_NUMBER = 0;
     private final InvoiceGeneratorRepository invoiceGeneratorRepository;
     private final InvoiceHistoryService invoiceHistoryService;
@@ -45,6 +46,10 @@ public class InvoiceResource {
         if (body.toLowerCase().contains(INVOICE_GENERATION)) {
 
             return invoiceGeneratorRepository.getNextInvoiceNumber(eventId);
+
+        } else if(body.toLowerCase().contains(INVOICE_INIT)) {
+
+            invoiceGeneratorRepository.createDatabaseSequence(eventId);
 
         } else {
 

@@ -11,11 +11,11 @@ import java.util.Optional;
 @Repository
 public class InvoiceGeneratorRepository {
     private final Logger log = LoggerFactory.getLogger(InvoiceGeneratorRepository.class);
+    public static final String INVOICE_NUMBER_SEQ_PREFIX = "invoice_number_seq_";
     public static final String ERROR_FETCHING_NEXT_INVOICE_NUMBER = "Error fetching next invoice number";
     public static final String EVENT_INVOICE_NUMBER = "event_invoice_number";
     private static final Integer ZERO_INVOICE_NUMBER = 0;
-    private static final String NEXT_INVOICE_NUMBER_QUERY =
-        "SELECT nextval('invoice_number_seq')";
+    private static final String NEXT_INVOICE_NUMBER_QUERY = "SELECT nextval('%s%d')";
     private static final String INSERT_INVOICE_QUERY =
         "INSERT INTO event_invoice_number(event_id, event_invoice_number) VALUES(?, ?)";
     private static final String INSERT_RECYCLED_INVOICE_QUERY =
@@ -29,6 +29,25 @@ public class InvoiceGeneratorRepository {
 
     public InvoiceGeneratorRepository(DataSource dataSource) {
         this.dataSource = dataSource;
+    }
+
+
+    /**
+     * Create the database sequence for the given event
+     * @param eventId the event id
+     */
+    public void createDatabaseSequence(Integer eventId) {
+        log.debug("Request to create database sequence for event {}", eventId);
+
+        String sql = String.format("CREATE SEQUENCE %s%d CACHE 2000;", INVOICE_NUMBER_SEQ_PREFIX, eventId);
+
+        try (Connection connection = dataSource.getConnection(); Statement stmt = connection.createStatement()) {
+            connection.setAutoCommit(true);
+            stmt.execute(sql);
+            log.debug("Request to create database sequence created : {}", sql);
+         } catch (SQLException e) {
+            log.error("Error creating DB sequence", e);
+         }
     }
 
     /**
@@ -68,7 +87,6 @@ public class InvoiceGeneratorRepository {
         }
     }
 
-
     /**
      * Get the invoice number from the database
      *
@@ -78,8 +96,11 @@ public class InvoiceGeneratorRepository {
      */
     private Optional<Integer> getInvoiceNumber(Integer eventId, Connection connection) {
         log.debug("Request to get next invoice number for event {}", eventId);
+
+        String sequenceQuery = String.format(NEXT_INVOICE_NUMBER_QUERY, INVOICE_NUMBER_SEQ_PREFIX, eventId);
+
         try (Statement seqStatement = connection.createStatement();
-             ResultSet rsSeq = seqStatement.executeQuery(NEXT_INVOICE_NUMBER_QUERY)) {
+             ResultSet rsSeq = seqStatement.executeQuery(sequenceQuery)) {
                  if (rsSeq.next()) {
                     int invoiceNumber = rsSeq.getInt(1);    // Get invoice number for sequence
 

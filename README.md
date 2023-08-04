@@ -59,6 +59,10 @@ brew install siege
 ### 1. init invoice number
 
 ```
+curl -vvv -X POST -H "Content-Type: application/json" -d "invoice_init" http://localhost:8080/api/invoice/99 
+```
+
+```
 curl -vvv -X POST -H "Content-Type: application/json" -d "invoice_init" https://payment.devoxx.be/api/invoice/99
 ```
 
