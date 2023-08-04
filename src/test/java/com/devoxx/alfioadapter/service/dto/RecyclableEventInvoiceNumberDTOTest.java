@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.devoxx.alfioadapter.web.rest.TestUtil;
 import org.junit.jupiter.api.Test;
 
-class RecyclableInvoiceNumberDTOTest {
+class RecyclableEventInvoiceNumberDTOTest {
 
     @Test
     void dtoEqualsVerifier() throws Exception {

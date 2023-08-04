@@ -1,8 +1,7 @@
 package com.devoxx.alfioadapter.web.rest;
 
+import com.devoxx.alfioadapter.repository.InvoiceGeneratorRepository;
 import com.devoxx.alfioadapter.service.InvoiceHistoryService;
-import com.devoxx.alfioadapter.service.InvoiceNumberService;
-import com.devoxx.alfioadapter.service.RecyclableInvoiceNumberService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
@@ -18,16 +17,13 @@ public class InvoiceResource {
     public static final String RESERVATION_CANCELLED = "reservation_cancelled";
     public static final String INVOICE_GENERATION = "invoice_generation";
     public static final String INVOICE_INIT = "invoice_init";
-    public static final int ZERO_INVOICE_NUMBER = 0;
-    private final InvoiceNumberService invoiceNumberService;
-    private final RecyclableInvoiceNumberService recyclableInvoiceNumberService;
+    private static final Integer ZERO_INVOICE_NUMBER = 0;
+    private final InvoiceGeneratorRepository invoiceGeneratorRepository;
     private final InvoiceHistoryService invoiceHistoryService;
 
-    InvoiceResource(final InvoiceNumberService invoiceNumberService,
-                    final RecyclableInvoiceNumberService recyclableInvoiceNumberService,
-                    final InvoiceHistoryService invoiceHistoryService) {
-        this.invoiceNumberService = invoiceNumberService;
-        this.recyclableInvoiceNumberService = recyclableInvoiceNumberService;
+    InvoiceResource(final InvoiceGeneratorRepository invoiceGeneratorRepository,
+                    InvoiceHistoryService invoiceHistoryService) {
+        this.invoiceGeneratorRepository = invoiceGeneratorRepository;
         this.invoiceHistoryService = invoiceHistoryService;
     }
 
@@ -40,16 +36,20 @@ public class InvoiceResource {
      * @link <a href="https://github.com/alfio-event/alf.io/blob/master/docs/extensions-howto.md">More info</a>
      */
     @PostMapping("/{eventId}")
-    public Integer getInvoiceNumber(@PathVariable String eventId, @RequestBody String body) {
+    public Integer getInvoiceNumber(@PathVariable Integer eventId, @RequestBody String body) {
         log.debug("ALF.IO: getInvoiceNumber for event '{}' with body '{}'", eventId, body);
+
+        if (eventId == null) {
+            return ZERO_INVOICE_NUMBER;
+        }
 
         if (body.toLowerCase().contains(INVOICE_GENERATION)) {
 
-            return createInvoiceNumber(eventId);
+            return invoiceGeneratorRepository.getNextInvoiceNumber(eventId);
 
         } else if(body.toLowerCase().contains(INVOICE_INIT)) {
 
-            return invoiceNumberService.createInitInvoice(eventId);
+            invoiceGeneratorRepository.createDatabaseSequence(eventId);
 
         } else {
 
@@ -60,16 +60,6 @@ public class InvoiceResource {
         return ZERO_INVOICE_NUMBER;
     }
 
-    /**
-     * Create a new invoice number record.
-     * @param eventId event identifier
-     * @return the invoice number
-     */
-    private Integer createInvoiceNumber(String eventId) {
-        final Integer invoiceNumber = invoiceNumberService.nextInvoiceNumber(eventId);
-        invoiceHistoryService.save(eventId, invoiceNumber, InvoiceHistoryService.Action.GENERATE_INVOICE_NUMBER);
-        return invoiceNumber;
-    }
 
     /**
      * Confirm an invoice.
@@ -123,11 +113,8 @@ public class InvoiceResource {
      * @link <a href="https://github.com/alfio-event/alf.io/blob/master/docs/extensions-howto.md">more info</a>
      */
     @PostMapping("/confirmed/{eventId}")
-    public void confirmedInvoice(@PathVariable String eventId, @RequestBody String body) {
+    public void confirmedInvoice(@PathVariable Integer eventId, @RequestBody String body) {
         log.debug("ALF.IO: confirmedInvoice for event '{}' with body '{}'", eventId, body);
-
-        // TODO
-        log.debug("TODO Confirm paid invoice to Exact Online?");
 
         invoiceHistoryService.save(eventId, -1, InvoiceHistoryService.Action.CONFIRM_INVOICE);
     }
@@ -141,7 +128,7 @@ public class InvoiceResource {
      * @link <a href="https://github.com/alfio-event/alf.io/blob/master/docs/extensions-howto.md">more info</a>
      */
     @PostMapping("/cancel/{eventId}/{invoiceNumber}")
-    public boolean cancelInvoice(@PathVariable String eventId, @PathVariable Integer invoiceNumber, @RequestBody String body) {
+    public boolean cancelInvoice(@PathVariable Integer eventId, @PathVariable Integer invoiceNumber, @RequestBody String body) {
         log.debug("ALF.IO: cancelInvoice for event '{}' with invoice number '{}'", eventId, invoiceNumber);
 
         if (body.toLowerCase().contains(RESERVATION_CANCELLED)) {
@@ -149,9 +136,8 @@ public class InvoiceResource {
             if (invoiceNumber != null) {
                 invoiceHistoryService.save(eventId, invoiceNumber, InvoiceHistoryService.Action.CANCEL_INVOICE);
 
-                recyclableInvoiceNumberService.save(eventId, invoiceNumber);
+                return invoiceGeneratorRepository.recycleInvoiceNumber(eventId, invoiceNumber);
 
-                return true;
             } else {
 
                 invoiceHistoryService.save(eventId, invoiceNumber, InvoiceHistoryService.Action.CANCEL_INVOICE_NOT_FOUND);

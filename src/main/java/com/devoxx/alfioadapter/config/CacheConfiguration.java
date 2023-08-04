@@ -1,6 +1,7 @@
 package com.devoxx.alfioadapter.config;
 
 import java.time.Duration;
+
 import org.ehcache.config.builders.*;
 import org.ehcache.jsr107.Eh107Configuration;
 import org.hibernate.cache.jcache.ConfigSettings;
@@ -48,8 +49,6 @@ public class CacheConfiguration {
             createCache(cm, com.devoxx.alfioadapter.domain.User.class.getName());
             createCache(cm, com.devoxx.alfioadapter.domain.Authority.class.getName());
             createCache(cm, com.devoxx.alfioadapter.domain.User.class.getName() + ".authorities");
-            createCache(cm, com.devoxx.alfioadapter.domain.InvoiceNumber.class.getName());
-            createCache(cm, com.devoxx.alfioadapter.domain.RecyclableInvoiceNumber.class.getName());
             createCache(cm, com.devoxx.alfioadapter.domain.InvoiceHistory.class.getName());
             // jhipster-needle-ehcache-add-entry
         };

@@ -17,10 +17,10 @@
             <column name="creation_date" type="${datetimeType}">
                 <constraints nullable="true" />
             </column>
-            <column name="invoice_number" type="integer">
+            <column name="invoice_number" type="BIGINT">
                 <constraints nullable="true" />
             </column>
-            <column name="event_id" type="varchar(255)">
+            <column name="event_id" type="BIGINT">
                 <constraints nullable="true" />
             </column>
             <column name="status" type="varchar(255)">

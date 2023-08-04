@@ -42,7 +42,7 @@ public class InvoiceHistoryServiceImpl implements InvoiceHistoryService {
      * @return the persisted entity
      */
     @Override
-    public InvoiceHistory save(String eventId, Integer invoiceNumber, Action action) {
+    public InvoiceHistory save(Integer eventId, Integer invoiceNumber, Action action) {
         log.debug("Request to save InvoiceHistory : {}", invoiceNumber);
 
         final InvoiceHistory invoiceHistory = new InvoiceHistory();

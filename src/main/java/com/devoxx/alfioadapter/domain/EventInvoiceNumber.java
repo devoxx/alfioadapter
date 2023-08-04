@@ -10,15 +10,13 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
  * A InvoiceNumber.
  */
 @Entity
-@Table(name = "invoice_number")
+@Table(name = "event_invoice_number")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class InvoiceNumber implements Serializable {
+public class EventInvoiceNumber implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
-    @SequenceGenerator(name = "sequenceGenerator")
     @Column(name = "id")
     private Long id;
 
@@ -29,15 +27,13 @@ public class InvoiceNumber implements Serializable {
     private Integer invoiceNumber;
 
     @Column(name = "event_id")
-    private String eventId;
-
-    // jhipster-needle-entity-add-field - JHipster will add fields here
+    private Integer eventId;
 
     public Long getId() {
         return this.id;
     }
 
-    public InvoiceNumber id(Long id) {
+    public EventInvoiceNumber id(Long id) {
         this.setId(id);
         return this;
     }
@@ -50,7 +46,7 @@ public class InvoiceNumber implements Serializable {
         return this.creationDate;
     }
 
-    public InvoiceNumber creationDate(ZonedDateTime creationDate) {
+    public EventInvoiceNumber creationDate(ZonedDateTime creationDate) {
         this.setCreationDate(creationDate);
         return this;
     }
@@ -63,7 +59,7 @@ public class InvoiceNumber implements Serializable {
         return this.invoiceNumber;
     }
 
-    public InvoiceNumber invoiceNumber(Integer invoiceNumber) {
+    public EventInvoiceNumber invoiceNumber(Integer invoiceNumber) {
         this.setInvoiceNumber(invoiceNumber);
         return this;
     }
@@ -72,16 +68,16 @@ public class InvoiceNumber implements Serializable {
         this.invoiceNumber = invoiceNumber;
     }
 
-    public String getEventId() {
+    public Integer getEventId() {
         return this.eventId;
     }
 
-    public InvoiceNumber eventId(String eventId) {
+    public EventInvoiceNumber eventId(Integer eventId) {
         this.setEventId(eventId);
         return this;
     }
 
-    public void setEventId(String eventId) {
+    public void setEventId(Integer eventId) {
         this.eventId = eventId;
     }
 
@@ -92,10 +88,10 @@ public class InvoiceNumber implements Serializable {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof InvoiceNumber)) {
+        if (!(o instanceof EventInvoiceNumber)) {
             return false;
         }
-        return id != null && id.equals(((InvoiceNumber) o).id);
+        return id != null && id.equals(((EventInvoiceNumber) o).id);
     }
 
     @Override

@@ -15,7 +15,7 @@
     <property name="datetimeType" value="datetime" dbms="oracle, mssql, postgresql, h2"/>
 
     <include file="config/liquibase/changelog/00000000000000_initial_schema.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20220518124628_added_entity_InvoiceNumber.xml" relativeToChangelogFile="false"/>
+    <include file="/config/liquibase/changelog/20220518124628_added_entity_EventInvoiceNumbers.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220518124629_added_entity_RecyclableInvoiceNumber.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220518124630_added_entity_InvoiceHistory.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-changelog - JHipster will add liquibase changelogs here -->

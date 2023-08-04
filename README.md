@@ -59,14 +59,35 @@ brew install siege
 ### 1. init invoice number
 
 ```
+curl -vvv -X POST -H "Content-Type: application/json" -d "invoice_init" http://localhost:8080/api/invoice/99 
+```
+
+```
 curl -vvv -X POST -H "Content-Type: application/json" -d "invoice_init" https://payment.devoxx.be/api/invoice/99
 ```
 
-### 2. launch the load test
+### 2. Create an invoice record
+
+```
+curl http://localhost:8080/api/invoice/99 -X POST -H "Content-Type: application/json" -d "invoice_generation"  
+```
+
+### 3. Cancel an invoice number
+
+```
+curl http://localhost:8080/api/invoice/99 -X POST -H "Content-Type: application/json" -d "invoice_generation"
+```
+
+### 4. launch the load test
+
+```
+siege -c200 -t10s --content-type "application/json" 'http://localhost:8080/api/invoice/99 POST "invoice_generation"'
+```
 
 ```
 siege -c200 -t120s --content-type "application/json" 'https://payment.devoxx.be/api/invoice/99 POST "invoice_generation"'
 ```
+
  
 Create init records first to test locally with the following command:
 

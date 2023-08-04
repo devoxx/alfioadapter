@@ -28,7 +28,7 @@ public interface InvoiceHistoryService {
      * @param action    the invoice history action
      * @return the persisted entity
      */
-    InvoiceHistory save(String eventId, Integer invoiceNumber, Action action);
+    InvoiceHistory save(Integer eventId, Integer invoiceNumber, Action action);
 
     /**
      * Get all the invoiceHistories.

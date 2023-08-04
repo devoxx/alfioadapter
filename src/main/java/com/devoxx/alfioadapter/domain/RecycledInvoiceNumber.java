@@ -12,32 +12,27 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Entity
 @Table(name = "recyclable_invoice_number")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class RecyclableInvoiceNumber implements Serializable {
-
+public class RecycledInvoiceNumber implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
-    @SequenceGenerator(name = "sequenceGenerator")
     @Column(name = "id")
     private Long id;
 
     @Column(name = "creation_date")
     private ZonedDateTime creationDate;
 
-    @Column(name = "invoice_number")
-    private Integer invoiceNumber;
+    @Column(name = "event_invoice_number")
+    private Integer eventInvoiceNumber;
 
     @Column(name = "event_id")
-    private String eventId;
-
-    // jhipster-needle-entity-add-field - JHipster will add fields here
+    private Integer eventId;
 
     public Long getId() {
         return this.id;
     }
 
-    public RecyclableInvoiceNumber id(Long id) {
+    public RecycledInvoiceNumber id(Long id) {
         this.setId(id);
         return this;
     }
@@ -50,7 +45,7 @@ public class RecyclableInvoiceNumber implements Serializable {
         return this.creationDate;
     }
 
-    public RecyclableInvoiceNumber creationDate(ZonedDateTime creationDate) {
+    public RecycledInvoiceNumber creationDate(ZonedDateTime creationDate) {
         this.setCreationDate(creationDate);
         return this;
     }
@@ -59,43 +54,41 @@ public class RecyclableInvoiceNumber implements Serializable {
         this.creationDate = creationDate;
     }
 
-    public Integer getInvoiceNumber() {
-        return this.invoiceNumber;
+    public Integer getEventInvoiceNumber() {
+        return this.eventInvoiceNumber;
     }
 
-    public RecyclableInvoiceNumber invoiceNumber(Integer invoiceNumber) {
-        this.setInvoiceNumber(invoiceNumber);
+    public RecycledInvoiceNumber invoiceNumber(Integer invoiceNumber) {
+        this.setEventInvoiceNumber(invoiceNumber);
         return this;
     }
 
-    public void setInvoiceNumber(Integer invoiceNumber) {
-        this.invoiceNumber = invoiceNumber;
+    public void setEventInvoiceNumber(Integer invoiceNumber) {
+        this.eventInvoiceNumber = invoiceNumber;
     }
 
-    public String getEventId() {
+    public Integer getEventId() {
         return this.eventId;
     }
 
-    public RecyclableInvoiceNumber eventId(String eventId) {
+    public RecycledInvoiceNumber eventId(Integer eventId) {
         this.setEventId(eventId);
         return this;
     }
 
-    public void setEventId(String eventId) {
+    public void setEventId(Integer eventId) {
         this.eventId = eventId;
     }
-
-    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof RecyclableInvoiceNumber)) {
+        if (!(o instanceof RecycledInvoiceNumber)) {
             return false;
         }
-        return id != null && id.equals(((RecyclableInvoiceNumber) o).id);
+        return id != null && id.equals(((RecycledInvoiceNumber) o).id);
     }
 
     @Override
@@ -110,7 +103,7 @@ public class RecyclableInvoiceNumber implements Serializable {
         return "RecyclableInvoiceNumber{" +
             "id=" + getId() +
             ", creationDate='" + getCreationDate() + "'" +
-            ", invoiceNumber=" + getInvoiceNumber() +
+            ", eventInvoiceNumber=" + getEventInvoiceNumber() +
             ", eventId='" + getEventId() + "'" +
             "}";
     }

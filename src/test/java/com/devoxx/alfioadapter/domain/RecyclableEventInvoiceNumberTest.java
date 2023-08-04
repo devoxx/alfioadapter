@@ -5,14 +5,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.devoxx.alfioadapter.web.rest.TestUtil;
 import org.junit.jupiter.api.Test;
 
-class RecyclableInvoiceNumberTest {
+class RecyclableEventInvoiceNumberTest {
 
     @Test
     void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(RecyclableInvoiceNumber.class);
-        RecyclableInvoiceNumber recyclableInvoiceNumber1 = new RecyclableInvoiceNumber();
+        TestUtil.equalsVerifier(RecycledInvoiceNumber.class);
+        RecycledInvoiceNumber recyclableInvoiceNumber1 = new RecycledInvoiceNumber();
         recyclableInvoiceNumber1.setId(1L);
-        RecyclableInvoiceNumber recyclableInvoiceNumber2 = new RecyclableInvoiceNumber();
+        RecycledInvoiceNumber recyclableInvoiceNumber2 = new RecycledInvoiceNumber();
         recyclableInvoiceNumber2.setId(recyclableInvoiceNumber1.getId());
         assertThat(recyclableInvoiceNumber1).isEqualTo(recyclableInvoiceNumber2);
         recyclableInvoiceNumber2.setId(2L);
