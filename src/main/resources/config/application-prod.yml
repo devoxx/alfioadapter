@@ -39,9 +39,9 @@ spring:
     hikari:
       poolName: Hikari
       auto-commit: false
-      maximum-pool-size: 45
+      maximum-pool-size: 10
       keepalive-time: 30000
-      minimum-idle: 40
+      minimum-idle: 10
   jpa:
     database-platform: tech.jhipster.domain.util.FixedPostgreSQL10Dialect
   # Replace by 'prod, faker' to add the faker context and have sample data loaded in production
